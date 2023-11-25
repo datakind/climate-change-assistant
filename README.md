@@ -3,6 +3,8 @@ climate change information for a location, and provide some helpful resources fo
 
 The chainlit app is based off the cookbook example [here](https://github.com/Chainlit/cookbook/tree/main/openai-assistant).
 
+![screenshot](./images/screenshot.png)
+
 # Setup
 
 You will need a probable future API key, see [here](https://docs.probablefutures.org/api-access/) for more details. You will also need an [OPENAI key](https://platform.openai.com/docs/quickstart?context=python).
