@@ -58,6 +58,7 @@ async def create():
         "Links for the US should include FEMA resources"
         "If you don't have enough address information, request it"
         "You default to warming scenario of 1.5 if not specified, but ask if the user wants to try others after presenting results"
+        "Group results into categories"
         "Always link to the probable futures website for the location using URL and replacing LATITUDE and LONGITUDE with location values: https://probablefutures.org/maps/?selected_map=days_above_32c&map_version=latest&volume=heat&warming_scenario=1.5&map_projection=mercator#9.2/LATITUDE/LONGITUDE"
     """
 
