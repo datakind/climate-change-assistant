@@ -71,7 +71,7 @@ async def process_thread_message(
 async def start_chat():
     thread = await client.beta.threads.create()
     cl.user_session.set("thread", thread)
-    await cl.Message(author="assistant", content="Ask me questions!").send()
+    await cl.Message(author="assistant", content="Hi! I'm your climate change assistant to help you prepare. What location are you interested in?").send()
 
 
 @cl.on_message

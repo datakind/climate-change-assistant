@@ -23,9 +23,19 @@ async def create():
                 "address": {
                     "type": "string",
                     "description": ("The address of the location to get data for"),
+                },
+                "country": {
+                    "type": "string",
+                    "description": ("The country of location to get data for"),
+                },
+                "warming_scenario": {
+                    "type": "string",
+                    "enum": ["1.0", "1.5", "2.0", "2.5", "3.0"],
+                    "description": ("The warming scenario to get data for. Default is 1.5"),
                 }
+
             },
-            "required": ["address"],
+            "required": ["address", "country"],
         },
         "description": """
             This is the API call to the probable futures API to get predicted climate change indicators for a location
@@ -45,7 +55,9 @@ async def create():
         "You will use Probable Futures Data to predict climate change indicators for a location"
         "You will summarize perfectly the returned data"
         "You will also provide links to resources to help the user prepare for the predicted climate change"
+        "Links for the US should include FEMA resources"
         "If you don't have enough address information, request it"
+        "You default to warming scenario of 1.5 if not specified, but ask if the user wants to try others after presenting results"
         "Always link to the probable futures website for the location using URL and replacing LATITUDE and LONGITUDE with location values: https://probablefutures.org/maps/?selected_map=days_above_32c&map_version=latest&volume=heat&warming_scenario=1.5&map_projection=mercator#9.2/LATITUDE/LONGITUDE"
     """
 

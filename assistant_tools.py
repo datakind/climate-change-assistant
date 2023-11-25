@@ -45,11 +45,11 @@ def get_pf_token():
     access_token = response.json()["access_token"]
     return access_token
 
-def get_pf_data(address):
+def get_pf_data(address, country, warming_scenario="1.5"):
     variables = {}
 
     location = f"""
-        country: "USA"
+        country: "{country}"
         address: "{address}"
     """
 
@@ -59,7 +59,7 @@ def get_pf_data(address):
             getDatasetStatistics(input: { """
         + location
         + """ \
-                    warmingScenario: "1.5"
+                    warmingScenario: \"""" + warming_scenario + """\" 
                 }) {
                 datasetStatisticsResponses{
                     datasetId
@@ -84,3 +84,5 @@ def get_pf_data(address):
         url, json={"query": query, "variables": variables}, headers=headers
     )
     return str(response.json())
+
+#print(get_pf_data(address="New Delhi", country="India", warming_scenario="1.5"))
