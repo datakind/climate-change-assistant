@@ -9,7 +9,14 @@ The chainlit app is based off the cookbook example [here](https://github.com/Cha
 
 You will need a probable future API key, see [here](https://docs.probablefutures.org/api-access/) for more details. You will also need an [OPENAI key](https://platform.openai.com/docs/quickstart?context=python).
 
-Once you have these ...
+Setup a Conda environment ...
+
+1. Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) by selecting the installer that fits your OS version. Once it is installed you may have to restart your terminal (closing your terminal and opening again)
+2. In this directory, open terminal
+3. `conda env create -f environment.yml`
+4. `conda activate climate-env`
+
+Once you have these, then ...
 
 1. Copy `.env.example` to `.env`
 2. Set OpenAI key and Probable Futures API user and secret

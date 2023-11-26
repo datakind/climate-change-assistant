@@ -1,0 +1,19 @@
+# A Docker environment is provided to simulate the celery worker env, but below you can also find
+# a simple conda environment. To use this ...
+#
+# 1. Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) by selecting the installer that fits your OS version. Once it is installed you may have to restart your terminal (closing your terminal and opening again)
+# 2. In this directory, open terminal
+# 3. `conda env create -f environment.yml`
+# 4. `conda activate climate-env`
+#
+
+name: climate-env
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python=3.9
+- pip
+- pip:
+  - openai==1.3.5
+  - chainlit==0.7.604
