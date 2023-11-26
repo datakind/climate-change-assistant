@@ -13,21 +13,16 @@ import chainlit as cl
 from typing import Optional
 from chainlit.context import context
 
-import requests
-from bs4 import BeautifulSoup
-
 import assistant_tools as at
 
 api_key = os.environ.get("OPENAI_API_KEY")
 client = AsyncOpenAI(api_key=api_key)
 assistant_id = os.environ.get("ASSISTANT_ID")
 
-
 class DictToObject:
     def __init__(self, dictionary):
         for key, value in dictionary.items():
             setattr(self, key, value)
-
 
 async def process_thread_message(
     message_references: Dict[str, cl.Message], thread_message: ThreadMessage

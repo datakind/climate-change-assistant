@@ -2,7 +2,6 @@ import os
 import json
 
 import requests
-from bs4 import BeautifulSoup
 
 from datetime import date
 from datetime import datetime
@@ -85,4 +84,6 @@ def get_pf_data(address, country, warming_scenario="1.5"):
     )
     return str(response.json())
 
-#print(get_pf_data(address="New Delhi", country="India", warming_scenario="1.5"))
+#resp = get_pf_data(address="Mombassa", country="Kenya", warming_scenario="1.5")
+#resp = resp.replace("'", '"')
+#print(json.dumps(json.loads(resp), indent=2))
