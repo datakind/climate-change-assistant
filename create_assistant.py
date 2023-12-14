@@ -13,6 +13,7 @@ assistant_id = os.environ.get("ASSISTANT_ID")
 model = os.environ.get("MODEL")
 client = AsyncOpenAI(api_key=api_key)
 
+
 async def create():
     get_pf_data_schema = {
         "name": "get_pf_data",
@@ -38,7 +39,7 @@ async def create():
         },
         "description": """
             This is the API call to the probable futures API to get predicted climate change indicators for a location
-        """,
+        """,  # noqa: E501
     }
 
     get_current_datetime = {
@@ -46,10 +47,10 @@ async def create():
         "parameters": {"type": "object", "properties": {}},
         "description": """
             This function returns the current date time. ALWAYS call this function is a user requests information for a relative date like 'recently', or 'this month'
-        """,
+        """,  # noqa: E501
     }
 
-    instructions = """ 
+    instructions = """
         "Hello, Climate Change Assistant. You help people understand how climate change will affect their homes"
         "You will use Probable Futures Data to predict climate change indicators for a location"
         "You will summarize perfectly the returned data"
@@ -59,7 +60,7 @@ async def create():
         "Group results into categories"
         "Always link to the probable futures website for the location using URL and replacing LATITUDE and LONGITUDE with location values: https://probablefutures.org/maps/?selected_map=days_above_32c&map_version=latest&volume=heat&warming_scenario=1.5&map_projection=mercator#9.2/LATITUDE/LONGITUDE"
         "GENERATE OUTPUT THAT IS CLEAR AND EASY TO UNDERSTAND FOR A NON-TECHNICAL USER"
-    """
+    """  # noqa: E501
 
     tools = [
         {
@@ -75,7 +76,7 @@ async def create():
 
     # Find if agent exists
     try:
-        my_assistant = await client.beta.assistants.retrieve(assistant_id)
+        await client.beta.assistants.retrieve(assistant_id)
         print("Updating existing assistant ...")
         assistant = await client.beta.assistants.update(
             assistant_id,
@@ -85,7 +86,7 @@ async def create():
             model=model,
             # file_ids=[file.id]
         )
-    except:
+    except Exception:
         print("Creating assistant ...")
         assistant = await client.beta.assistants.create(
             name="Climate Change Assistant",

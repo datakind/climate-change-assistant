@@ -19,10 +19,12 @@ api_key = os.environ.get("OPENAI_API_KEY")
 client = AsyncOpenAI(api_key=api_key)
 assistant_id = os.environ.get("ASSISTANT_ID")
 
+
 class DictToObject:
     def __init__(self, dictionary):
         for key, value in dictionary.items():
             setattr(self, key, value)
+
 
 async def process_thread_message(
     message_references: Dict[str, cl.Message], thread_message: ThreadMessage
@@ -66,14 +68,18 @@ async def process_thread_message(
 async def start_chat():
     thread = await client.beta.threads.create()
     cl.user_session.set("thread", thread)
-    await cl.Message(author="assistant", content="Hi! I'm your climate change assistant to help you prepare. What location are you interested in?").send()
+    await cl.Message(
+        author="assistant",
+        content="Hi! I'm your climate change assistant to help you prepare. "
+                "What location are you interested in?"
+    ).send()
 
 
 @cl.on_message
 async def run_conversation(message_from_ui: cl.Message):
     thread = cl.user_session.get("thread")  # type: Thread
     # Add the message to the thread
-    init_message = await client.beta.threads.messages.create(
+    await client.beta.threads.messages.create(
         thread_id=thread.id, role="user", content=message_from_ui.content
     )
 
@@ -129,7 +135,7 @@ async def run_conversation(message_from_ui: cl.Message):
                     print(step_details)
                     print(tool_call)
                     if tool_call.type == "code_interpreter":
-                        if not tool_call.id in message_references:
+                        if tool_call.id not in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=tool_call.type,
                                 content=tool_call.code_interpreter.input
@@ -147,7 +153,7 @@ async def run_conversation(message_from_ui: cl.Message):
 
                         tool_output_id = tool_call.id + "output"
 
-                        if not tool_output_id in message_references:
+                        if tool_output_id not in message_references:
                             message_references[tool_output_id] = cl.Message(
                                 author=f"{tool_call.type}_result",
                                 content=str(tool_call.code_interpreter.outputs) or "",
@@ -161,15 +167,15 @@ async def run_conversation(message_from_ui: cl.Message):
                             )
                             await message_references[tool_output_id].update()
                     elif tool_call.type == "retrieval":
-                        if not tool_call.id in message_references:
+                        if tool_call.id not in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=tool_call.type,
                                 content="Retrieving information",
                                 parent_id=context.session.root_message.id,
                             )
                             await message_references[tool_call.id].send()
-                    # Note that this assumes some arguments due to some bug with early assistants and chainlit
-                    # so be careful for functions that don't have mandatory parameters
+                    # Note that this assumes some arguments due to some bug with early assistants
+                    # and chainlit so be careful for functions that don't have mandatory parameters
                     elif (
                         tool_call.type == "function"
                         and len(tool_call.function.arguments) > 0
@@ -177,7 +183,7 @@ async def run_conversation(message_from_ui: cl.Message):
                         function_name = tool_call.function.name
                         function_args = json.loads(tool_call.function.arguments)
 
-                        if not tool_call.id in message_references:
+                        if tool_call.id not in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=function_name,
                                 content=function_args,

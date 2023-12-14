@@ -9,11 +9,13 @@
 
 name: climate-env
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
 dependencies:
-- python=3.9
-- pip
-- pip:
-  - openai==1.3.5
-  - chainlit==0.7.604
+  - python=3.9
+  - pip
+  - flake8
+  - pre-commit
+  - pip:
+      - openai==1.3.5
+      - chainlit==0.7.604

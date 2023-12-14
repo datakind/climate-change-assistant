@@ -15,6 +15,7 @@ pf_token_url = "https://probablefutures.us.auth0.com/oauth/token"
 
 load_dotenv()
 
+
 def convert_to_iso8601(date_str):
     try:
         # Parse the date string to a datetime object
@@ -26,8 +27,10 @@ def convert_to_iso8601(date_str):
         # Return the original string if it's not in the expected date format
         return date_str
 
+
 def get_current_datetime():
     return str(date.today())
+
 
 def get_pf_token():
     client_id = os.getenv("CLIENT_ID")
@@ -44,6 +47,7 @@ def get_pf_token():
     access_token = response.json()["access_token"]
     return access_token
 
+
 def get_pf_data(address, country, warming_scenario="1.5"):
     variables = {}
 
@@ -58,7 +62,7 @@ def get_pf_data(address, country, warming_scenario="1.5"):
             getDatasetStatistics(input: { """
         + location
         + """ \
-                    warmingScenario: \"""" + warming_scenario + """\" 
+                    warmingScenario: \"""" + warming_scenario + """\"
                 }) {
                 datasetStatisticsResponses{
                     datasetId
@@ -83,7 +87,3 @@ def get_pf_data(address, country, warming_scenario="1.5"):
         url, json={"query": query, "variables": variables}, headers=headers
     )
     return str(response.json())
-
-#resp = get_pf_data(address="Mombassa", country="Kenya", warming_scenario="1.5")
-#resp = resp.replace("'", '"')
-#print(json.dumps(json.loads(resp), indent=2))

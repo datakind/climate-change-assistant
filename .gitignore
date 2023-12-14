@@ -1,1 +1,8 @@
+# Byte-compiled / optimized / DLL files
+__pycache__
+
+# VisualStudioCode
+.vscode
+
+# Environments
 .env
