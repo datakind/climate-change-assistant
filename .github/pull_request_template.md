@@ -6,6 +6,8 @@
 
 <!-- Describe what changes this PR makes in the present tense -->
 
+Closes # .
+
 ### Steps to QA
 
 <!-- If this is a feature, what are the steps to try it out? -->
