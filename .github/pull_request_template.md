@@ -1,6 +1,5 @@
 <!-- Please make your PR title above^ match this format:  -->
-<!-- chXXXX: Short summary of what this does -->
-<!-- If there is no corresponding ticket for this PR, use standard Postlight commit naming -->
+<!-- feat/fix/chore/refactor: Short summary of what this does -->
 
 ### Description
 
