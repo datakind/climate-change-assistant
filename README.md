@@ -32,6 +32,11 @@ If you make changes to the assistant, rerun `create_assistant.py`, which will up
 
 `chainlit run app.py`
 
+## Run the app locally using docker (optional)
+
+1. Build the docker image `docker build -t pf-assistant:latest .`
+2. Run the app locally `docker run -p 8080:8080 pf-assistant:latest`
+
 ## To view assistant on OpenAI
 
 Go [here](https://platform.openai.com/assistants)
