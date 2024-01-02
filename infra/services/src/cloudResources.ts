@@ -35,7 +35,6 @@ const cache = cloudfront.createDistribution(resource, {
   },
   origin: {
     target: alb,
-    type: "custom",
   },
   originReadTimeout: 60,
   tags: config.createTags({ name: `${resource}-cdn`, service: "core" }),

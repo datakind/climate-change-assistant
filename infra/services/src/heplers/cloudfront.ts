@@ -10,13 +10,10 @@ const customOriginDefaults = {
   originProtocolPolicy: "https-only",
 };
 
-type DefaultCacheBehavior = pulumi.Unwrap<aws.cloudfront.DistributionArgs["defaultCacheBehavior"]>;
+type DefaultCacheBehavior = pulumi.Unwrap<
+  aws.cloudfront.DistributionArgs["defaultCacheBehavior"]
+>;
 export type ForwardedValues = DefaultCacheBehavior["forwardedValues"];
-
-type Origin =
-  | { target: aws.s3.Bucket; type: "bucket" }
-  | { target: aws.s3.Bucket; type: "custom-bucket-endpoint" }
-  | { target: aws.lb.LoadBalancer; type: "custom" };
 
 type CustomOriginConfig = {
   httpPort: number;
@@ -31,44 +28,21 @@ export interface CreateDistributionArgs {
   cachedMethods: string[];
   domainAlias: pulumi.Input<string>;
   forward?: ForwardedValues;
-  origin: Origin;
+  origin: { target: aws.lb.LoadBalancer };
   originReadTimeout?: number;
   webAclId?: pulumi.Output<any>;
   tags?: any;
 }
 
 export function createDistribution(name: string, args: CreateDistributionArgs) {
-  const { webAclId, tags, allowedMethods, cachedMethods, originReadTimeout } = args;
+  const { webAclId, tags, allowedMethods, cachedMethods, originReadTimeout } =
+    args;
   let customErrorResponses: aws.cloudfront.DistributionArgs["customErrorResponses"];
-  let customOriginConfig: CustomOriginConfig | undefined;
-  let defaultRootObject: string | undefined;
-  let domainName: pulumi.Output<string>;
-  let originId: pulumi.Output<string>;
+  let customOriginConfig: CustomOriginConfig | undefined = customOriginDefaults;
+  let domainName: pulumi.Output<string> = args.origin.target.dnsName;
+  let originId: pulumi.Output<string> = args.origin.target.name;
 
-  switch (args.origin.type) {
-    case "bucket": {
-      customErrorResponses = [{ errorCode: 404, responseCode: 200, responsePagePath: "/" }];
-      defaultRootObject = "index.html";
-      domainName = args.origin.target.bucketRegionalDomainName;
-      originId = args.origin.target.bucket;
-      break;
-    }
-    case "custom-bucket-endpoint": {
-      customErrorResponses = [{ errorCode: 404, responseCode: 200, responsePagePath: "/" }];
-      domainName = args.origin.target.websiteEndpoint;
-      originId = args.origin.target.websiteEndpoint;
-      customOriginConfig = customOriginDefaults;
-      customOriginConfig.originReadTimeout = originReadTimeout || 30;
-      break;
-    }
-    case "custom": {
-      customOriginConfig = customOriginDefaults;
-      customOriginConfig.originReadTimeout = originReadTimeout || 30;
-      domainName = args.origin.target.dnsName;
-      originId = args.origin.target.name;
-      break;
-    }
-  }
+  customOriginConfig.originReadTimeout = originReadTimeout || 30;
 
   return new aws.cloudfront.Distribution(name, {
     aliases: [args.domainAlias],
@@ -96,7 +70,6 @@ export function createDistribution(name: string, args: CreateDistributionArgs) {
       sslSupportMethod: "sni-only",
     },
     customErrorResponses,
-    defaultRootObject,
     webAclId,
     tags,
   });
