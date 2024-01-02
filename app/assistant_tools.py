@@ -9,11 +9,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 import sys
 
-pf_api_url = "https://graphql.probablefutures.org"
-pf_token_audience = "https://graphql.probablefutures.com"
-pf_token_url = "https://probablefutures.us.auth0.com/oauth/token"
-
 load_dotenv()
+
+pf_api_url = os.getenv("PF_API_URL")
+pf_token_audience = os.getenv("PF_TOKEN_AUDIENCE")
+pf_token_url = os.getenv("PF_TOKEN_URL")
 
 
 def convert_to_iso8601(date_str):

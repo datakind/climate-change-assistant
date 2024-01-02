@@ -1,6 +1,4 @@
-
-# If you’re on Mac M1, replace the line below with "FROM --platform=linux/amd64 python:3.9-slim"
-FROM python:3.10-slim
+FROM --platform=linux/amd64 python:3.9-slim
 
 ENV PYTHONUNBUFFERED 1
 

@@ -1,0 +1,14 @@
+config:
+  auth0:client_id:
+    secure: AAABABB1+tOiuhtYVDS8yxSlYdHXvH9FNlhQfLfHOdX4kfZcGnBka5jkLCk4p3U9ANkAEYIbny0CP+BBj4MM5g==
+  auth0:client_secret:
+    secure: AAABAKntvRnH3HCTSoOmw3fwrlfSu4NPRAysM660J3cc/I7CIRdkl+zOtZYHZxzKKVHl48PHyAP+1cmF5QNqUJegxURqKP+DV52Eem7muRQkC/3M7lFh26HsYu6G242H
+  auth0:domain: probablefutures.us.auth0.com
+  assistant-services:auth0:
+    googleConnectionId: con_P2Uwb1gsmYRs8hJ7
+  aws:profile: probablefutures
+  aws:region: us-west-2
+  assistant-services:api:
+    elbAccessLogs:
+      enabled: true
+    port: 8080
