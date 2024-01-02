@@ -1,6 +1,7 @@
 import * as auth0 from "@pulumi/auth0";
 
 import { config } from "./config";
+import getSubdomain from "./heplers/getSubdomain";
 
 // auth client for api access
 const assistantApiAuth = new auth0.Client("AssistantApiAccess", {
@@ -38,18 +39,13 @@ const assistantAuth = new auth0.Client("Assistant", {
   },
   oidcConformant: true,
   grantTypes: ["authorization_code", "refresh_token"],
-  allowedLogoutUrls: [
-    "https://chat.probablefutures.org",
-    "https://dev-chat.probablefutures.org",
-  ],
+  allowedLogoutUrls: [`https://${getSubdomain("chat")}.probablefutures.org`],
   callbacks: [
-    "https://chat.probablefutures.org",
-    "https://dev-chat.probablefutures.org",
+    `http://${getSubdomain(
+      "chat"
+    )}.probablefutures.org/auth/oauth/auth0/callback`,
   ],
-  webOrigins: [
-    "https://chat.probablefutures.org/",
-    "https://dev-chat.probablefutures.org/",
-  ],
+  webOrigins: [`https://${getSubdomain("chat")}.probablefutures.org/`],
   name: "Probable Futures Assistant",
   logoUri:
     "https://user-images.githubusercontent.com/894075/101797194-be4c8e80-3ad7-11eb-86c8-82516c0a96f0.png",
