@@ -1,3 +1,7 @@
-# Welcome to the Climate Change Assistant
+# About the climate change assistant
 
-This chainlit app will use an [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview) and the [Probable futures](https://probablefutures.org/) API to provide climate change information for a location, and provide some helpful resources for how to prepare.
+This climate change assistant uses an [OpenAI Assistant](https://platform.openai.com/docs/assistants/overview) and the [Probable Futures API](docs.probablefutures.org/api) to provide climate change information for a location along with resources intended to help people prepare for the changing climate conditions in that location.
+
+Like all OpenAI Assistants, this climate change assistant follows a set of instructions that define its focus and behavior. [See the instructions for this assistant](https://github.com/Probable-Futures/climate-change-assistant/blob/main/app/create_assistant.py#L53) to understand why it behaves as it does.
+
+This app was developed by [DataKind](https://www.datakind.org/) in collaboration with [Probable Futures](https://probablefutures.org/). It is open-source and started as a project by [Matthew Harris](https://www.linkedin.com/in/matthew-harris-4018865/), Head of Data Science at DataKind, and was first described in Matthew's article, [Preparing for Climate Change with an AI Assistant](https://towardsdatascience.com/preparing-for-climate-change-with-an-ai-assistant-cdceb5ce4426). To explore the code, see the [DataKind repository](https://github.com/datakind/climate-change-assistant) or see the code the app you are using now in the [Probable Futures repository](https://github.com/Probable-Futures/climate-change-assistant). 
