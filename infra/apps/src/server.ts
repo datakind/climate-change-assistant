@@ -65,6 +65,10 @@ const service = new awsx.ecs.FargateService(assistantResource, {
         { name: "PF_API_URL", value: config.authApiUrl },
         { name: "PF_TOKEN_AUDIENCE", value: config.authTokenAudience },
         { name: "PF_TOKEN_URL", value: config.authTokenUrl },
+        {
+          name: "IS_DEV",
+          value: stackName === "development" ? "true" : "false",
+        },
       ],
       portMappings: [
         {

@@ -14,10 +14,11 @@ from typing import Optional
 from chainlit.context import context
 
 import assistant_tools as at
+import price_helper
+import consts
 
 api_key = os.environ.get("OPENAI_API_KEY")
 client = AsyncOpenAI(api_key=api_key)
-assistant_id = os.environ.get("ASSISTANT_ID")
 
 
 class DictToObject:
@@ -89,7 +90,7 @@ async def run_conversation(message_from_ui: cl.Message):
 
     # Create the run
     run = await client.beta.threads.runs.create(
-        thread_id=thread.id, assistant_id=assistant_id
+        thread_id=thread.id, assistant_id=consts.assistant_id
     )
 
     message_references = {}  # type: Dict[str, cl.Message]
@@ -123,7 +124,6 @@ async def run_conversation(message_from_ui: cl.Message):
                 for tool_call in step_details.tool_calls:
                     # IF tool call is a disctionary, convert to object
                     if isinstance(tool_call, dict):
-                        print(tool_call)
                         tool_call = DictToObject(tool_call)
                         if tool_call.type == "function":
                             function = DictToObject(tool_call.function)
@@ -132,8 +132,6 @@ async def run_conversation(message_from_ui: cl.Message):
                             code_interpretor = DictToObject(tool_call.code_interpretor)
                             tool_call.code_interpretor = code_interpretor
 
-                    print(step_details)
-                    print(tool_call)
                     if tool_call.type == "code_interpreter":
                         if tool_call.id not in message_references:
                             message_references[tool_call.id] = cl.Message(
@@ -200,9 +198,6 @@ async def run_conversation(message_from_ui: cl.Message):
                             # Not sure why, but sometimes this is returned rather than name
                             function_name = function_name.replace("_schema", "")
 
-                            print(f"FUNCTION NAME: {function_name}")
-                            print(function_args)
-
                             output = function_mappings[function_name](**function_args)
 
                             await client.beta.threads.runs.submit_tool_outputs(
@@ -220,6 +215,23 @@ async def run_conversation(message_from_ui: cl.Message):
 
         print(f"RUN STATUS: {run.status}")
         if run.status in ["cancelled", "failed", "completed", "expired"]:
+            if consts.is_dev:
+                all_messages = await client.beta.threads.messages.list(thread_id=thread.id)
+                [input_tokens, output_tokens] = price_helper.tokens_per_user(all_messages.data[2:])  # skip last two messages
+                [tokens_for_last_input_message, tokens_for_last_output_message] = price_helper.tokens_per_user(all_messages.data[:2])  # tokens of the last 2 messages (top of the list are the latest messages)
+                cost = sum([
+                    price_helper.cost_of_input_tokens_per_model(input_tokens),
+                    price_helper.cost_of_output_tokens_per_model(output_tokens),
+                    price_helper.cost_of_input_tokens_per_model(tokens_for_last_input_message),
+                    price_helper.cost_of_output_tokens_per_model(tokens_for_last_output_message),
+                    price_helper.cost_of_input_tokens_per_model(input_tokens + output_tokens)  # the assistant will read all previous messages as input to generate the response
+                ])
+                cost_message = cl.Message(
+                    author="system",
+                    content=f"The minimum total cost for this conversation so far is: ${round(cost, 6)}\n{consts.note_message}"
+                )
+                await cost_message.send()
+
             break
 
 
