@@ -14,18 +14,16 @@ from typing import Optional
 from chainlit.context import context
 
 import assistant_tools as at
-import price_helper
-import consts
+import prompts as pr
 
 api_key = os.environ.get("OPENAI_API_KEY")
 client = AsyncOpenAI(api_key=api_key)
-
+assistant_id = os.environ.get("ASSISTANT_ID")
 
 class DictToObject:
     def __init__(self, dictionary):
         for key, value in dictionary.items():
             setattr(self, key, value)
-
 
 async def process_thread_message(
     message_references: Dict[str, cl.Message], thread_message: ThreadMessage
@@ -53,6 +51,7 @@ async def process_thread_message(
                     size="large",
                 ),
             ]
+            print('trying to display message line 53')
 
             if id not in message_references:
                 message_references[id] = cl.Message(
@@ -69,15 +68,12 @@ async def process_thread_message(
 async def start_chat():
     thread = await client.beta.threads.create()
     cl.user_session.set("thread", thread)
-    await cl.Message(
-        author="assistant",
-        content="Hi! I'm your climate change assistant to help you prepare. "
-                "What location are you interested in?"
-    ).send()
+    await cl.Message(author="Climate Change Assistant", content="Hi! I'm your climate change assistant to help you prepare. What location are you interested in?").send()
 
 
 @cl.on_message
 async def run_conversation(message_from_ui: cl.Message):
+    count = 0
     thread = cl.user_session.get("thread")  # type: Thread
     # Add the message to the thread
     await client.beta.threads.messages.create(
@@ -90,7 +86,7 @@ async def run_conversation(message_from_ui: cl.Message):
 
     # Create the run
     run = await client.beta.threads.runs.create(
-        thread_id=thread.id, assistant_id=consts.assistant_id
+        thread_id=thread.id, assistant_id=assistant_id
     )
 
     message_references = {}  # type: Dict[str, cl.Message]
@@ -120,10 +116,22 @@ async def run_conversation(message_from_ui: cl.Message):
                 )
                 await process_thread_message(message_references, thread_message)
 
+            print("line 116 about the call the tools call loop")
+            count += 1
+            print(str(count))
+
             if step_details.type == "tool_calls":
+                loading_message = "Retrieving information, please stand by."
+                loading_message_to_assistant = cl.Message(author="assistant", content=loading_message)
+                await loading_message_to_assistant.send()  # output_message_to_assistant.send()
+
                 for tool_call in step_details.tool_calls:
+                    print('top of tool call loop line 119')
+
                     # IF tool call is a disctionary, convert to object
                     if isinstance(tool_call, dict):
+                        print("here is a tool call at line 120")
+                        print(tool_call)
                         tool_call = DictToObject(tool_call)
                         if tool_call.type == "function":
                             function = DictToObject(tool_call.function)
@@ -132,8 +140,12 @@ async def run_conversation(message_from_ui: cl.Message):
                             code_interpretor = DictToObject(tool_call.code_interpretor)
                             tool_call.code_interpretor = code_interpretor
 
+                    print("here are step details at line 130")
+                    print(step_details)
+                    print("here is tool call at line 132")
+                    print(tool_call)
                     if tool_call.type == "code_interpreter":
-                        if tool_call.id not in message_references:
+                        if not tool_call.id in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=tool_call.type,
                                 content=tool_call.code_interpreter.input
@@ -149,9 +161,10 @@ async def run_conversation(message_from_ui: cl.Message):
                             )
                             await message_references[tool_call.id].update()
 
+                        print("here is tool call id in line 151")
                         tool_output_id = tool_call.id + "output"
 
-                        if tool_output_id not in message_references:
+                        if not tool_output_id in message_references:
                             message_references[tool_output_id] = cl.Message(
                                 author=f"{tool_call.type}_result",
                                 content=str(tool_call.code_interpreter.outputs) or "",
@@ -164,16 +177,17 @@ async def run_conversation(message_from_ui: cl.Message):
                                 str(tool_call.code_interpreter.outputs) or ""
                             )
                             await message_references[tool_output_id].update()
+
                     elif tool_call.type == "retrieval":
-                        if tool_call.id not in message_references:
+                        if not tool_call.id in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=tool_call.type,
                                 content="Retrieving information",
                                 parent_id=context.session.root_message.id,
                             )
                             await message_references[tool_call.id].send()
-                    # Note that this assumes some arguments due to some bug with early assistants
-                    # and chainlit so be careful for functions that don't have mandatory parameters
+                    # Note that this assumes some arguments due to some bug with early assistants and chainlit
+                    # so be careful for functions that don't have mandatory parameters
                     elif (
                         tool_call.type == "function"
                         and len(tool_call.function.arguments) > 0
@@ -181,24 +195,97 @@ async def run_conversation(message_from_ui: cl.Message):
                         function_name = tool_call.function.name
                         function_args = json.loads(tool_call.function.arguments)
 
-                        if tool_call.id not in message_references:
+                        if not tool_call.id in message_references:
                             message_references[tool_call.id] = cl.Message(
                                 author=function_name,
                                 content=function_args,
                                 language="json",
-                                parent_id=context.session.root_message.id,
+                                # parent_id=context.session.root_message.id,
                             )
-                            await message_references[tool_call.id].send()
+                            # await message_references[tool_call.id].send()
 
                             function_mappings = {
-                                "get_pf_data": at.get_pf_data,
+                                "get_pf_data_new": at.get_pf_data_new,
                                 "get_current_datetime": at.get_current_datetime,
                             }
 
                             # Not sure why, but sometimes this is returned rather than name
                             function_name = function_name.replace("_schema", "")
 
-                            output = function_mappings[function_name](**function_args)
+                            print(f"FUNCTION NAME: {function_name}")
+                            print(function_args)
+
+                            summary, parsed_output = function_mappings[function_name](**function_args)  # , output, image
+
+                            # img = cl.Image(url=image, name="image1", display="inline", size="large")  # path=image_path,
+                            # img = Image.open(filename)
+
+                            print('line 213 bottom of tool loop')
+
+                            if summary is not None:  # output
+                                # tool_output_id = tool_call.id + "output"
+
+                                # Send the summary message to the UI first
+                                # message_history = cl.user_session.get("thread")
+                                # message_history.append({"role": "user", "content": message_from_ui.content})
+
+                                msg = cl.Message(content="")
+                                await msg.send()
+
+                                output = ""
+
+                                for part in summary:
+                                    if token := part.choices[0].delta.content or "":
+                                        output += token
+                                        await msg.stream_token(token)
+
+                                await msg.update()
+
+                                loading_message = "Now, let's take a closer look at what life will look like in the future in that city."
+                                loading_message_to_assistant = cl.Message(author="assistant", content=loading_message)
+                                await loading_message_to_assistant.send()
+
+                                # Send the story and image to the UI in chunks
+                                temperature_output, water_output, land_output = at.story_splitter(parsed_output)
+
+                                story_chunks = [temperature_output, water_output, land_output]
+                                print('got story chunks')
+
+                                # iterating through this list
+                                # prompts_list = [temperature_prompt, water_prompt, land_prompt]
+
+                                for i in range(len(story_chunks)):
+                                    output = ""
+                                    story = at.story_completion(pr.prompts_list[i], story_chunks[i])
+
+                                    print(story)
+
+                                    msg = cl.Message(content="")
+                                    await msg.send()
+
+                                    for part in story:
+                                        if token := part.choices[0].delta.content or "":
+                                            output += token
+                                            await msg.stream_token(token)
+
+                                    await msg.update()
+
+                                    # loading_message_to_assistant = cl.Message(author="assistant",
+                                    #                                          content=output)
+                                    # await loading_message_to_assistant.send()
+
+                                    # await cl.sleep(10)
+
+                                    print('\n generating image, begin')
+
+                                    # uncomment this line/ switch with 283 to run stable diffusion XL with GPU
+                                    img = cl.Image(content=at.get_image_response_SDXL(at.summarizer(output)), name="image1", display="inline", size="large")  # _SDXL
+                                    # img = cl.Image(url=at.get_image_response(pr.storyboard_prompt, at.summarizer(output)), name="image1", display="inline", size="large")
+                                    print('\n generating image, complete')
+                                    image_message_to_assistant = cl.Message(author="Climate Change Assistant", content=' ', elements=[img])
+                                    await image_message_to_assistant.send()  # output_message_to_assistant.send()
+
+                                run.status = "completed"
 
                             await client.beta.threads.runs.submit_tool_outputs(
                                 thread_id=thread.id,
@@ -214,32 +301,6 @@ async def run_conversation(message_from_ui: cl.Message):
         await cl.sleep(1)  # Refresh every second
 
         print(f"RUN STATUS: {run.status}")
+
         if run.status in ["cancelled", "failed", "completed", "expired"]:
-            if consts.is_dev:
-                all_messages = await client.beta.threads.messages.list(thread_id=thread.id)
-                [input_tokens, output_tokens] = price_helper.tokens_per_user(all_messages.data[2:])  # skip last two messages
-                [tokens_for_last_input_message, tokens_for_last_output_message] = price_helper.tokens_per_user(all_messages.data[:2])  # tokens of the last 2 messages (top of the list are the latest messages)
-                cost = sum([
-                    price_helper.cost_of_input_tokens_per_model(input_tokens),
-                    price_helper.cost_of_output_tokens_per_model(output_tokens),
-                    price_helper.cost_of_input_tokens_per_model(tokens_for_last_input_message),
-                    price_helper.cost_of_output_tokens_per_model(tokens_for_last_output_message),
-                    price_helper.cost_of_input_tokens_per_model(input_tokens + output_tokens)  # the assistant will read all previous messages as input to generate the response
-                ])
-                cost_message = cl.Message(
-                    author="system",
-                    content=f"The minimum total cost for this conversation so far is: ${round(cost, 6)}\n{consts.note_message}"
-                )
-                await cost_message.send()
-
             break
-
-
-@cl.oauth_callback
-def oauth_callback(
-    provider_id: str,
-    token: str,
-    raw_user_data: Dict[str, str],
-    default_app_user: cl.AppUser
-) -> Optional[cl.AppUser]:
-    return default_app_user
