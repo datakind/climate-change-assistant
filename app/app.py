@@ -279,8 +279,8 @@ async def run_conversation(message_from_ui: cl.Message):
                                     print('\n generating image, begin')
 
                                     # uncomment this line/ switch with 283 to run stable diffusion XL with GPU
-                                    img = cl.Image(content=at.get_image_response_SDXL(at.summarizer(output)), name="image1", display="inline", size="large")  # _SDXL
-                                    # img = cl.Image(url=at.get_image_response(pr.storyboard_prompt, at.summarizer(output)), name="image1", display="inline", size="large")
+                                    # img = cl.Image(content=at.get_image_response_SDXL(at.summarizer(output)), name="image1", display="inline", size="large")  # _SDXL
+                                    img = cl.Image(url=at.get_image_response(pr.storyboard_prompt, at.summarizer(output)), name="image1", display="inline", size="large")
                                     print('\n generating image, complete')
                                     image_message_to_assistant = cl.Message(author="Climate Change Assistant", content=' ', elements=[img])
                                     await image_message_to_assistant.send()  # output_message_to_assistant.send()

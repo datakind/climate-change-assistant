@@ -27,8 +27,8 @@ pf_token_url = os.getenv("PF_TOKEN_URL")
 load_dotenv()
 client = OpenAI()
 
-pipeline_text2image = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16")
-pipeline_text2image = pipeline_text2image.to("cuda")
+# pipeline_text2image = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16")
+# pipeline_text2image = pipeline_text2image.to("cuda")
 
 def convert_to_iso8601(date_str):
     try:
@@ -114,13 +114,13 @@ def story_completion(story_system_prompt, content):
     return completion  # .choices[0].message.content
 
 # need GPU to run this part; uncomment lines 31 & 32
-def get_image_response_SDXL(prompt):
-    print('starting SDXL')
-    image = pipeline_text2image(prompt=prompt, guidance_scale=0.0, num_inference_steps=1).images[0]
-    buffer = io.BytesIO()
-    image.save(buffer, format='PNG')
-    image_bytes = buffer.getvalue()
-    return image_bytes
+# def get_image_response_SDXL(prompt):
+#     print('starting SDXL')
+#     image = pipeline_text2image(prompt=prompt, guidance_scale=0.0, num_inference_steps=1).images[0]
+#     buffer = io.BytesIO()
+#     image.save(buffer, format='PNG')
+#     image_bytes = buffer.getvalue()
+#     return image_bytes
 
 
 # dall-e-3 image completion version
