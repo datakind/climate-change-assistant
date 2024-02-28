@@ -1,0 +1,3 @@
+name: server
+runtime: nodejs
+description: Pulumi project for defining resources for Server.

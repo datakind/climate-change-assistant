@@ -1,0 +1,3 @@
+name: assistant-services
+runtime: nodejs
+description: Pulumi defined infrastructure for services used by applications.
