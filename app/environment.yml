@@ -4,10 +4,10 @@
 # 1. Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) by selecting the installer that fits your OS version. Once it is installed you may have to restart your terminal (closing your terminal and opening again)
 # 2. In this directory, open terminal
 # 3. `conda env create -f environment.yml`
-# 4. `conda activate climate-env`
+# 4. `conda activate assistant-env`
 #
 
-name: climate-env
+name: assistant-env
 channels:
   - conda-forge
   - defaults
@@ -21,7 +21,7 @@ dependencies:
       - openai==1.3.5
       - chainlit==0.7.604
       - tiktoken
-        - Pillow
-        - diffusers
-        - torch
-        - transformers
+      - Pillow
+      - diffusers
+      - torch
+      - transformers

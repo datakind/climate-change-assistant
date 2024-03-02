@@ -15,7 +15,7 @@ Setup a Conda environment ...
 1. Install [miniconda](https://docs.conda.io/en/latest/miniconda.html) by selecting the installer that fits your OS version. Once it is installed you may have to restart your terminal (closing your terminal and opening again)
 2. `cd app/`
 3. `conda env create -f environment.yml`
-4. `conda activate climate-env`
+4. `conda activate assistant-env`
 
 If you add a new dependency, run `conda env update -f environment.yml` to install it or to update existing ones.
 
